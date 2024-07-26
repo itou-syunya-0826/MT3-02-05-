@@ -610,6 +610,13 @@ bool Matrix::IsCollision(const Segment& segment, const Triangle& triangle)
 	return true;
 }
 
+bool Matrix::IsCollision(const AABB& aabb1, const AABB& aabb2)
+{
+	return (aabb1.min.x <= aabb2.max.x && aabb1.max.x >= aabb2.min.x) && //x軸
+		   (aabb1.min.y <= aabb2.max.y && aabb1.max.y >= aabb2.min.y) && //y軸
+		   (aabb1.min.z <= aabb2.max.z && aabb1.max.z >= aabb2.min.z);   //z軸
+}
+
 Vector3 Matrix::Perpendicular(const Vector3& vector) {
 	if (vector.x != 0.0f || vector.y != 0.0f) {
 		return { -vector.y,vector.x,0.0f };
@@ -658,6 +665,53 @@ void Matrix::DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProject
 		int(screenVertices[1].y), int(screenVertices[2].x), int(screenVertices[2].y),
 		color, kFillModeWireFrame
 	);
+
+}
+
+void Matrix::DrawAABB(const AABB aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color)
+{
+	// AABBを構成する8頂点を作る
+	Vector3 vertices[8]{
+		{aabb.min.x,aabb.min.y,aabb.min.z},
+		{aabb.min.x,aabb.max.y,aabb.min.z},
+		{aabb.min.x,aabb.max.y,aabb.max.z},
+		{aabb.min.x,aabb.min.y,aabb.max.z},
+		{aabb.max.x,aabb.min.y,aabb.min.z},
+		{aabb.max.x,aabb.max.y,aabb.min.z},
+		{aabb.max.x,aabb.max.y,aabb.max.z},
+		{aabb.max.x,aabb.min.y,aabb.max.z},
+	};
+
+	// スクリーン座標系への変換
+	Vector3 screenVertices[8];
+	for (uint32_t index = 0; index < 8; ++index) {
+		screenVertices[index] =
+			Transform(Transform(vertices[index], viewProjectionMatrix), viewportMatrix);
+	}
+
+	// 線を繋いで描画
+	// どの頂点同士で結ぶかを示すインデックスのペア
+	std::pair<uint32_t, uint32_t> indices[12] = {
+		{0,1},
+		{1,2},
+		{2,3},
+		{3,0},
+		{4,5},
+		{5,6},
+		{6,7},
+		{7,4},
+		{0,4},
+		{1,5},
+		{2,6},
+		{3,7},
+	};
+	// 各ペアのインデックスを使ってscreenVertices配列から頂点の座標を取得し、描画する
+	for (auto& index : indices) {
+		Novice::DrawLine(
+			int(screenVertices[index.first].x), int(screenVertices[index.first].y),
+			int(screenVertices[index.second].x), int(screenVertices[index.second].y), color);
+	}
+	
 
 }
 

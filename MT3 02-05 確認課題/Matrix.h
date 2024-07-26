@@ -52,6 +52,11 @@ public:
 		Vector3 vertices[3];
 	};
 
+	struct AABB {
+		Vector3 min;// 最小点
+		Vector3 max;// 最大点
+	};
+
 public:
 
 	Matrix();
@@ -291,14 +296,21 @@ public:
 	/// <returns></returns>
 	static bool IsCollision(const Segment& segment, const Triangle& triangle);
 
+
+	/// <summary>
+	/// ボックスとボックスの衝突判定
+	/// </summary>
+	/// <param name="aabb1"></param>
+	/// <param name="aabb2"></param>
+	/// <returns></returns>
+	static bool IsCollision(const AABB& aabb1, const AABB& aabb2);
+
 	/// <summary>
 	/// 垂直ベクトルの生成
 	/// </summary>
 	/// <param name="vector"></param>
 	/// <returns></returns>
 	static Vector3 Perpendicular(const Vector3& vector);
-
-	
 
 	/// <summary>
 	/// 平面の描画
@@ -309,6 +321,22 @@ public:
 	/// <param name="color"></param>
 	static void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
 
+	/// <summary>
+	/// 三角形の描画
+	/// </summary>
+	/// <param name="triangle"></param>
+	/// <param name="viewProjection"></param>
+	/// <param name="viewportMatrix"></param>
+	/// <param name="color"></param>
 	static void DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjection, const Matrix4x4& viewportMatrix, uint32_t color);
+
+	/// <summary>
+	/// ボックスの描画
+	/// </summary>
+	/// <param name="aabb"></param>
+	/// <param name="viewProjectionMatrix"></param>
+	/// <param name="viewportMatrix"></param>
+	/// <param name="color"></param>
+	static void DrawAABB(const AABB aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color);
 };
 
